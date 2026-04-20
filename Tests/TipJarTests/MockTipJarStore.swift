@@ -6,6 +6,7 @@ final class MockTipJarStore: TipJarStoreProtocol {
   var errorToThrow: Error?
   var purchasedSizes: [TipJarSize] = []
   var storedTransactions: [String: VerifiedTipJarTransaction] = [:]
+  var transactionToStoreOnPurchase: VerifiedTipJarTransaction?
   private var continuations: [UUID: AsyncStream<String>.Continuation] = [:]
 
   var storedTransactionIDs: AsyncStream<String> {
@@ -27,6 +28,10 @@ final class MockTipJarStore: TipJarStoreProtocol {
       throw errorToThrow
     }
     purchasedSizes.append(size)
+
+    if let transactionToStoreOnPurchase {
+      storedTransactions[transactionToStoreOnPurchase.transactionID] = transactionToStoreOnPurchase
+    }
   }
 
   func listStoredTransactionIDs() throws -> [String] {

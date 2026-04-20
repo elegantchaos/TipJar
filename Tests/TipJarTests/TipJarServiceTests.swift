@@ -49,6 +49,35 @@ struct TipJarServiceTests {
     #expect(service.state == .loaded)
   }
 
+  @Test("successful purchase persists stored transaction and refreshes recents")
+  func purchasePersistsRecentHistory() async throws {
+    let store = MockTipJarStore()
+    store.productsToReturn = [
+      TipJarProduct(
+        size: .medium,
+        productID: configuration.productID(for: .medium),
+        title: "Medium Tip",
+        displayPrice: "£2.99"
+      )
+    ]
+    store.transactionToStoreOnPurchase = VerifiedTipJarTransaction(
+      size: .medium,
+      productID: configuration.productID(for: .medium),
+      transactionID: "tx-purchase",
+      purchaseDate: Date(timeIntervalSince1970: 2000),
+      displayPrice: "£2.99"
+    )
+    let history = InMemoryPurchaseHistory()
+    let service = TipJarService(configuration: configuration, purchaseHistory: history, store: store)
+
+    await service.loadProducts()
+    try await service.purchase(.medium)
+
+    #expect(history.savedTransactions == ["tx-purchase"])
+    #expect(service.recentPurchases.map(\.transactionID) == ["tx-purchase"])
+    #expect(store.storedTransactions.isEmpty)
+  }
+
   @Test("recovered stored transactions persist exactly once")
   func recoveredTransactionsPersistOnce() async {
     let store = MockTipJarStore()

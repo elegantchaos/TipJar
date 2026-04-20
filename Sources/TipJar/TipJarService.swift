@@ -82,6 +82,7 @@ public final class TipJarService {
 
     do {
       try await store.purchase(size: size)
+      await processStoredTransactions()
       state = .loaded
     } catch {
       tipJarChannel.log("purchase failed: \(error)")
@@ -146,7 +147,10 @@ public final class TipJarService {
   private func recoverStoredTransactionsIfNeeded() async {
     guard !didAttemptRecovery else { return }
     didAttemptRecovery = true
+    await processStoredTransactions()
+  }
 
+  private func processStoredTransactions() async {
     do {
       for id in try store.listStoredTransactionIDs() {
         await processStoredTransaction(id: id)
