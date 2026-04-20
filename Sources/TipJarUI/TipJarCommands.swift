@@ -25,7 +25,6 @@ public protocol TipJarPresenter: CommandCentre {
 public struct ShowTipJarCommand<C: TipJarPresenter>: CommandWithUI {
   public let id = "tip-jar.show"
   public let icon = Icon("heart.circle")
-  public let bundle = Bundle.module
 
   public init() {
   }
@@ -39,7 +38,6 @@ public struct ShowTipJarCommand<C: TipJarPresenter>: CommandWithUI {
 public struct ReloadTipJarProductsCommand<C: TipJarServiceProvider>: CommandWithUI {
   public let id = "tip-jar.reload"
   public let icon = Icon("arrow.clockwise")
-  public let bundle = Bundle.module
 
   public init() {
   }
@@ -53,7 +51,6 @@ public struct ReloadTipJarProductsCommand<C: TipJarServiceProvider>: CommandWith
 public struct PurchaseTipCommand<C: TipJarServiceProvider>: CommandWithUI {
   public let size: TipJarSize
   public let icon = Icon("heart.fill")
-  public let bundle = Bundle.module
 
   public init(size: TipJarSize) {
     self.size = size

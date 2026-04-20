@@ -4,7 +4,6 @@ import PackageDescription
 
 let package = Package(
   name: "TipJar",
-  defaultLocalization: "en",
   platforms: [
     .macOS(.v26), .iOS(.v26), .tvOS(.v26),
   ],
@@ -41,9 +40,6 @@ let package = Package(
         .product(name: "Commands", package: "Commands"),
         .product(name: "CommandsUI", package: "Commands"),
         .product(name: "Icons", package: "Icons"),
-      ],
-      resources: [
-        .process("Resources"),
       ],
       swiftSettings: [
         .swiftLanguageMode(.v6),
