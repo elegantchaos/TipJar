@@ -9,9 +9,6 @@ import TipJar
 
 /// Section that renders the fixed set of Tip Jar products and their loading states.
 struct TipJarProductsSection<C: TipJarServiceProvider & CommandCentre>: View {
-  /// Standard spacing used within the section and grid.
-  @ScaledMetric(relativeTo: .body) private var spacing = 12
-
   /// Command centre used to execute purchase commands.
   let commander: C
 
@@ -22,7 +19,7 @@ struct TipJarProductsSection<C: TipJarServiceProvider & CommandCentre>: View {
   let state: TipJarService.State
 
   var body: some View {
-    VStack(alignment: .leading, spacing: spacing) {
+    VStack(alignment: .leading) {
       TipJarSectionHeader(title: localized("tip-jar.available"))
 
       if showsLoadingState {
@@ -31,9 +28,9 @@ struct TipJarProductsSection<C: TipJarServiceProvider & CommandCentre>: View {
         TipJarUnavailableStateCard()
       } else {
         LazyVGrid(
-          columns: [GridItem(.adaptive(minimum: 220), spacing: spacing, alignment: .top)],
-          alignment: .leading,
-          spacing: spacing
+          columns: [GridItem(.adaptive(minimum: 220), alignment: .top)],
+          alignment: .leading
+          
         ) {
           ForEach(products) { product in
             TipJarProductCard(

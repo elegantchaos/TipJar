@@ -7,6 +7,8 @@ import Commands
 import SwiftUI
 import TipJar
 
+let tipJarCardShape = RoundedRectangle(cornerRadius: 18, style: .continuous)
+
 /// Card that renders one purchasable Tip Jar product as a command-backed button.
 struct TipJarProductCard<C: TipJarServiceProvider & CommandCentre>: View {
   /// Command centre used to execute the purchase command.
@@ -68,12 +70,12 @@ private struct TipJarProductCardLabel: View {
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding()
-    .background(backgroundStyle, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+    .background(backgroundStyle, in: tipJarCardShape)
     .overlay {
-      RoundedRectangle(cornerRadius: 18, style: .continuous)
+      tipJarCardShape
         .strokeBorder(.quaternary)
     }
-    .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+    .contentShape(tipJarCardShape)
   }
 
   /// Background styling that emphasizes the currently active purchase.

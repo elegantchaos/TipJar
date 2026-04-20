@@ -7,23 +7,17 @@ import SwiftUI
 
 /// Introductory panel that explains what Tip Jar purchases are for.
 struct TipJarIntroductionSection: View {
-  /// Standard spacing used throughout the section layout.
-  @ScaledMetric(relativeTo: .body) private var spacing = 12
-
   /// Icon size scaled with Dynamic Type.
   @ScaledMetric(relativeTo: .body) private var iconSize = 44
 
-  /// Interior padding for the intro panel.
-  @ScaledMetric(relativeTo: .body) private var panelPadding = 18
-
   var body: some View {
-    HStack(alignment: .top, spacing: spacing) {
+    HStack(alignment: .top) {
       Image(systemName: "heart.circle.fill")
         .font(.system(size: iconSize))
         .foregroundStyle(.tint)
         .accessibilityHidden(true)
 
-      VStack(alignment: .leading, spacing: spacing) {
+      VStack(alignment: .leading) {
         Text(localized("tip-jar.blurb"))
           .font(.body)
           .fixedSize(horizontal: false, vertical: true)
@@ -35,7 +29,7 @@ struct TipJarIntroductionSection: View {
       }
     }
     .frame(maxWidth: .infinity, alignment: .leading)
-    .padding(panelPadding)
-    .background(.quaternary, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+    .padding()
+    .background(.quaternary, in: tipJarCardShape)
   }
 }

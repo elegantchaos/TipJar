@@ -26,9 +26,9 @@ struct TipJarRecentPurchasesSection: View {
           }
         }
       }
-      .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+      .background(.regularMaterial, in: tipJarCardShape)
       .overlay {
-        RoundedRectangle(cornerRadius: 18, style: .continuous)
+        tipJarCardShape
           .strokeBorder(.quaternary)
       }
     }
