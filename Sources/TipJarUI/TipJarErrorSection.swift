@@ -5,10 +5,15 @@
 
 import SwiftUI
 
+/// Section that surfaces the current Tip Jar error message inside the sheet.
 struct TipJarErrorSection: View {
+  /// Vertical spacing between the section header and error body.
   @ScaledMetric(relativeTo: .body) private var spacing = 8
+
+  /// Interior padding for the error message panel.
   @ScaledMetric(relativeTo: .body) private var panelPadding = 18
 
+  /// User-visible error message to present.
   let message: String
 
   var body: some View {

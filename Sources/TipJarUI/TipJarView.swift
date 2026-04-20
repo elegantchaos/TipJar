@@ -9,13 +9,19 @@ import TipJar
 
 /// Generic SwiftUI Tip Jar view driven by commands and a shared service.
 public struct TipJarView<C: TipJarServiceProvider & CommandCentre>: View {
+  /// Shared Tip Jar service injected by the host app.
   @Environment(TipJarService.self) private var tipJarService
 
+  /// Outer padding for the sheet content.
   @ScaledMetric(relativeTo: .body) private var contentPadding = 20
+
+  /// Vertical spacing between the major sections.
   @ScaledMetric(relativeTo: .body) private var sectionSpacing = 20
 
+  /// Command centre used to execute Tip Jar commands.
   private let commander: C
 
+  /// Creates a Tip Jar sheet view backed by the supplied command centre.
   public init(commander: C) {
     self.commander = commander
   }
@@ -48,6 +54,7 @@ public struct TipJarView<C: TipJarServiceProvider & CommandCentre>: View {
     }
   }
 
+  /// Recent purchases mapped into UI-ready display values.
   private var recentPurchases: [TipJarRecentPurchase] {
     tipJarService.recentPurchases.map { purchase in
       TipJarRecentPurchase(
@@ -59,6 +66,7 @@ public struct TipJarView<C: TipJarServiceProvider & CommandCentre>: View {
     }
   }
 
+  /// Error message extracted from the current service state.
   private var errorMessage: String? {
     guard case .failed(let message) = tipJarService.state else {
       return nil
@@ -67,6 +75,7 @@ public struct TipJarView<C: TipJarServiceProvider & CommandCentre>: View {
     return message
   }
 
+  /// Loads any persisted history and fetches products on first appearance.
   private func loadContentIfNeeded() async {
     tipJarService.loadRecentPurchases()
 

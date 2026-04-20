@@ -5,9 +5,12 @@
 
 import SwiftUI
 
+/// Section that renders persisted recent purchases once history exists.
 struct TipJarRecentPurchasesSection: View {
+  /// Standard spacing used within the section.
   @ScaledMetric(relativeTo: .body) private var spacing = 12
 
+  /// Recent purchases already mapped into UI-ready values.
   let purchases: [TipJarRecentPurchase]
 
   var body: some View {
@@ -32,10 +35,15 @@ struct TipJarRecentPurchasesSection: View {
   }
 }
 
+/// Row that renders one persisted recent purchase.
 private struct TipJarRecentPurchaseRow: View {
+  /// Horizontal spacing between the title block and trailing price.
   @ScaledMetric(relativeTo: .body) private var spacing = 8
+
+  /// Interior padding for the row.
   @ScaledMetric(relativeTo: .body) private var rowPadding = 14
 
+  /// Purchase entry to present.
   let purchase: TipJarRecentPurchase
 
   var body: some View {

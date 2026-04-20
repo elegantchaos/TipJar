@@ -21,6 +21,7 @@ public final class TipJarService {
     case purchasing(size: TipJarSize)
     case failed(message: String)
 
+    /// Returns whether a purchase is currently in flight.
     public var isPurchasing: Bool {
       if case .purchasing = self {
         return true
@@ -32,13 +33,23 @@ public final class TipJarService {
   private let configuration: TipJarConfiguration
   private let store: any TipJarStoreProtocol
   private let purchaseHistory: any TipJarPurchaseHistory
+
+  /// Background task that listens for persisted transaction inbox updates.
   private var listenerTask: Task<Void, Never>?
+
+  /// Guards one-time recovery of previously persisted inbox entries.
   private var didAttemptRecovery = false
 
+  /// Current product-loading and purchase state.
   public private(set) var state: State = .idle
+
+  /// Available tip products resolved from StoreKit.
   public private(set) var products: [TipJarProduct] = []
+
+  /// Recent persisted purchase history shown in the UI.
   public private(set) var recentPurchases: [TipJarPurchaseRecord] = []
 
+  /// Creates a service backed by StoreKit and a concrete purchase history store.
   public init(
     configuration: TipJarConfiguration,
     purchaseHistory: any TipJarPurchaseHistory,
@@ -133,6 +144,7 @@ public final class TipJarService {
     )
   }
 
+  /// Starts listening for transaction identifiers emitted after inbox persistence.
   private func startListeningForStoredTransactions() {
     listenerTask?.cancel()
     listenerTask = Task { [weak self] in
@@ -144,12 +156,14 @@ public final class TipJarService {
     }
   }
 
+  /// Processes any inbox entries left behind from a previous launch once per service lifetime.
   private func recoverStoredTransactionsIfNeeded() async {
     guard !didAttemptRecovery else { return }
     didAttemptRecovery = true
     await processStoredTransactions()
   }
 
+  /// Drains every currently persisted inbox entry into durable purchase history.
   private func processStoredTransactions() async {
     do {
       for id in try store.listStoredTransactionIDs() {
@@ -160,6 +174,7 @@ public final class TipJarService {
     }
   }
 
+  /// Maps a persisted verified transaction into purchase history and clears the inbox entry on success.
   private func processStoredTransaction(id: String) async {
     do {
       var verified = try store.loadStoredTransaction(id: id)
@@ -191,6 +206,7 @@ public final class TipJarService {
     }
   }
 
+  /// Persists a purchase record if needed, then refreshes the in-memory recent list.
   private func persist(_ record: TipJarPurchaseRecord) throws -> Bool {
     let exists = try purchaseHistory.containsTransaction(id: record.transactionID)
     if !exists {

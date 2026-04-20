@@ -5,9 +5,15 @@
 
 import SwiftUI
 
+/// Introductory panel that explains what Tip Jar purchases are for.
 struct TipJarIntroductionSection: View {
+  /// Standard spacing used throughout the section layout.
   @ScaledMetric(relativeTo: .body) private var spacing = 12
+
+  /// Icon size scaled with Dynamic Type.
   @ScaledMetric(relativeTo: .body) private var iconSize = 44
+
+  /// Interior padding for the intro panel.
   @ScaledMetric(relativeTo: .body) private var panelPadding = 18
 
   var body: some View {

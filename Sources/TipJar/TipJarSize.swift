@@ -11,6 +11,7 @@ public enum TipJarSize: String, Sendable, CaseIterable, Codable {
   case medium
   case large
 
+  /// Fallback title used when StoreKit metadata is not currently available.
   public var fallbackTitle: String {
     switch self {
       case .small:

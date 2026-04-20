@@ -14,6 +14,7 @@ public enum TipJarStoreError: Error, LocalizedError, Equatable {
   case userCancelled
   case pending
 
+  /// Localized description surfaced to the UI and logs.
   public var errorDescription: String? {
     switch self {
       case .storeKitUnavailable:
