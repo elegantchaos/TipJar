@@ -47,17 +47,28 @@ public struct StubTipJarStore: TipJarStoreProtocol {
     private let configuration: TipJarConfiguration
     private let inbox: TipJarTransactionInbox
     private let streamState = StreamState()
+    private let registrationID: UUID
 
     public init(configuration: TipJarConfiguration) {
       self.configuration = configuration
       self.inbox = (try? TipJarTransactionInbox(applicationID: configuration.productPrefix)) ?? .disabled
+      self.registrationID = UUID()
     }
 
     public var storedTransactionIDs: AsyncStream<String> {
       let streamState = self.streamState
+      let configuration = self.configuration
+      let inbox = self.inbox
+      let registrationID = self.registrationID
       return AsyncStream { continuation in
         let token = UUID()
         Task {
+          await TransactionListener.shared.register(
+            id: registrationID,
+            configuration: configuration,
+            inbox: inbox,
+            streamState: streamState
+          )
           await streamState.add(continuation, id: token)
         }
         continuation.onTermination = { _ in
@@ -69,6 +80,7 @@ public struct StubTipJarStore: TipJarStoreProtocol {
     }
 
     public func fetchProducts() async throws -> [TipJarProduct] {
+      await ensureRegistered()
       let ids = TipJarSize.allCases.map(configuration.productID(for:))
       let products = try await Product.products(for: ids)
       return products.compactMap { product in
@@ -95,6 +107,7 @@ public struct StubTipJarStore: TipJarStoreProtocol {
     }
 
     public func purchase(size: TipJarSize) async throws {
+      await ensureRegistered()
       let productID = configuration.productID(for: size)
       let products = try await Product.products(for: [productID])
       guard let product = products.first else {
@@ -125,6 +138,15 @@ public struct StubTipJarStore: TipJarStoreProtocol {
 
     public func deleteStoredTransaction(id: String) throws {
       try inbox.delete(id: id)
+    }
+
+    private func ensureRegistered() async {
+      await TransactionListener.shared.register(
+        id: registrationID,
+        configuration: configuration,
+        inbox: inbox,
+        streamState: streamState
+      )
     }
 
     private func verifiedTransaction(from result: VerificationResult<Transaction>) throws -> Transaction {
@@ -193,6 +215,73 @@ public struct StubTipJarStore: TipJarStoreProtocol {
     func yield(_ value: String) {
       for continuation in continuations.values {
         continuation.yield(value)
+      }
+    }
+  }
+
+  actor TransactionListener {
+    struct Registration: Sendable {
+      let configuration: TipJarConfiguration
+      let inbox: TipJarTransactionInbox
+      let streamState: StreamState
+    }
+
+    static let shared = TransactionListener()
+
+    private var registrations: [UUID: Registration] = [:]
+    private var listenerTask: Task<Void, Never>?
+
+    func register(
+      id: UUID,
+      configuration: TipJarConfiguration,
+      inbox: TipJarTransactionInbox,
+      streamState: StreamState
+    ) {
+      registrations[id] = Registration(
+        configuration: configuration,
+        inbox: inbox,
+        streamState: streamState
+      )
+
+      guard listenerTask == nil else { return }
+      listenerTask = Task.detached(priority: .background) {
+        await Self.runLoop(listener: Self.shared)
+      }
+    }
+
+    private func handle(_ result: VerificationResult<Transaction>) async {
+      guard case .verified(let transaction) = result else { return }
+
+      for registration in registrations.values {
+        guard let size = registration.configuration.size(for: transaction.productID) else {
+          continue
+        }
+
+        do {
+          let payload = VerifiedTipJarTransaction(
+            size: size,
+            productID: transaction.productID,
+            transactionID: String(transaction.id),
+            purchaseDate: transaction.purchaseDate,
+            displayPrice: ""
+          )
+          let id = try registration.inbox.store(payload)
+          await registration.streamState.yield(id)
+          await transaction.finish()
+          return
+        } catch {
+          tipJarStoreChannel.log("Failed to persist transaction update \(transaction.id): \(error)")
+        }
+      }
+    }
+
+    private static func runLoop(listener: TransactionListener) async {
+      for await result in Transaction.unfinished {
+        await listener.handle(result)
+      }
+
+      for await result in Transaction.updates {
+        await listener.handle(result)
       }
     }
   }
