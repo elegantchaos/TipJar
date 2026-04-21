@@ -28,10 +28,12 @@ public struct ShowTipJarCommand<C: TipJarPresenter>: CommandWithUI {
   /// Stable identifier used for localization and UI wiring.
   public let id = "tip-jar.show"
 
-  /// Fixed icon used when surfacing the command in UI.
-  public let icon = Icon("heart.circle")
-
   public init() {
+  }
+
+  /// Fixed icon used when surfacing the command in UI.
+  public func icon(centre: C) -> Icon {
+    Icon("heart.circle")
   }
 
   /// Asks the host application to present the Tip Jar UI.
@@ -45,10 +47,12 @@ public struct ReloadTipJarProductsCommand<C: TipJarServiceProvider>: CommandWith
   /// Stable identifier used for localization and UI wiring.
   public let id = "tip-jar.reload"
 
-  /// Fixed icon used when surfacing the command in UI.
-  public let icon = Icon("arrow.clockwise")
-
   public init() {
+  }
+
+  /// Fixed icon used when surfacing the command in UI.
+  public func icon(centre: C) -> Icon {
+    Icon("arrow.clockwise")
   }
 
   /// Reloads products from StoreKit through the shared service.
@@ -62,9 +66,6 @@ public struct PurchaseTipCommand<C: TipJarServiceProvider>: CommandWithUI {
   /// Tip size to purchase when the command executes.
   public let size: TipJarSize
 
-  /// Fixed icon used when surfacing the command in UI.
-  public let icon = Icon("heart.fill")
-
   public init(size: TipJarSize) {
     self.size = size
   }
@@ -72,6 +73,11 @@ public struct PurchaseTipCommand<C: TipJarServiceProvider>: CommandWithUI {
   /// Stable identifier derived from the selected size.
   public var id: String {
     "tip-jar.purchase.\(size.rawValue)"
+  }
+
+  /// Fixed icon used when surfacing the command in UI.
+  public func icon(centre: C) -> Icon {
+    Icon("heart.fill")
   }
 
   /// Starts a purchase for the configured tip size.
