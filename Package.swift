@@ -15,7 +15,7 @@ let package = Package(
     .library(name: "TipJarSwiftData", targets: ["TipJarSwiftData"]),
   ],
   dependencies: [
-    .package(url: "https://github.com/elegantchaos/Commands.git", from: "2.0.0"),
+    .package(url: "https://github.com/elegantchaos/Commands.git", from: "2.0.1"),
     .package(url: "https://github.com/elegantchaos/Icons.git", from: "1.0.1"),
     .package(url: "https://github.com/elegantchaos/Logger.git", from: "2.0.4"),
   ],
