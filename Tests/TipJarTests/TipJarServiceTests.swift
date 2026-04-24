@@ -18,7 +18,7 @@ struct TipJarServiceTests {
         displayPrice: "£0.99"
       )
     ]
-    let history = InMemoryPurchaseHistory(
+    let history = InMemoryTipJarPurchaseHistory(
       purchases: [
         TipJarPurchaseRecord(
           productID: configuration.productID(for: .medium),
@@ -40,7 +40,7 @@ struct TipJarServiceTests {
   @Test("purchase records selected size")
   func purchaseInvokesStore() async throws {
     let store = MockTipJarStore()
-    let history = InMemoryPurchaseHistory()
+    let history = InMemoryTipJarPurchaseHistory()
     let service = TipJarService(configuration: configuration, purchaseHistory: history, store: store)
 
     try await service.purchase(.medium)
@@ -67,13 +67,13 @@ struct TipJarServiceTests {
       purchaseDate: Date(timeIntervalSince1970: 2000),
       displayPrice: "£2.99"
     )
-    let history = InMemoryPurchaseHistory()
+    let history = InMemoryTipJarPurchaseHistory()
     let service = TipJarService(configuration: configuration, purchaseHistory: history, store: store)
 
     await service.loadProducts()
     try await service.purchase(.medium)
 
-    #expect(history.savedTransactions == ["tx-purchase"])
+    #expect(history.purchases.map(\.transactionID) == ["tx-purchase"])
     #expect(service.recentPurchases.map(\.transactionID) == ["tx-purchase"])
     #expect(store.storedTransactions.isEmpty)
   }
@@ -89,7 +89,7 @@ struct TipJarServiceTests {
         displayPrice: "£0.99"
       )
     ]
-    let history = InMemoryPurchaseHistory()
+    let history = InMemoryTipJarPurchaseHistory()
     let service = TipJarService(configuration: configuration, purchaseHistory: history, store: store)
     await service.loadProducts()
     try? await Task.sleep(for: .milliseconds(50))
@@ -110,7 +110,7 @@ struct TipJarServiceTests {
     }
 
     #expect(service.recentPurchases.count == 1)
-    #expect(history.savedTransactions == ["tx-1"])
+    #expect(history.purchases.map(\.transactionID) == ["tx-1"])
     #expect(store.storedTransactions.isEmpty)
   }
 
@@ -125,7 +125,7 @@ struct TipJarServiceTests {
         displayPrice: "£9.99"
       )
     ]
-    let service = TipJarService(configuration: configuration, purchaseHistory: InMemoryPurchaseHistory(), store: store)
+    let service = TipJarService(configuration: configuration, purchaseHistory: InMemoryTipJarPurchaseHistory(), store: store)
     await service.loadProducts()
 
     let purchase = TipJarPurchaseRecord(
